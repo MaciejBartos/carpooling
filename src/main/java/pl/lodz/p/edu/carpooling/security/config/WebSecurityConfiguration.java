@@ -12,9 +12,9 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import pl.lodz.p.edu.carpooling.security.services.AuthenticationService;
-import pl.lodz.p.edu.carpooling.security.utils.AuthenticationEntryPointJwt;
-import pl.lodz.p.edu.carpooling.security.utils.AuthenticationTokenFilter;
+import pl.lodz.p.edu.carpooling.security.service.AuthenticationService;
+import pl.lodz.p.edu.carpooling.security.util.AuthenticationEntryPointJwt;
+import pl.lodz.p.edu.carpooling.security.util.AuthenticationTokenFilter;
 
 @Configuration
 @EnableWebSecurity
