@@ -24,11 +24,11 @@ public class PersonalData {
 
     private Long yearsOld;
 
-    @OneToOne(cascade = CascadeType.PERSIST)
+    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinColumn(name = "address_id", referencedColumnName = "id")
     private Address address;
 
-    @OneToOne(mappedBy = "personalData")
+    @OneToOne(mappedBy = "personalData", cascade = CascadeType.MERGE)
     private Account account;
 
     @Version

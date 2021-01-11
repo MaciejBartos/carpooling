@@ -46,6 +46,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                     .antMatchers("/auth/**").permitAll()
                     .antMatchers("/account/**").hasRole("USER")
+                    .antMatchers("/account/admin").hasRole("ADMIN")
                     .anyRequest().authenticated();
 
         http.addFilterBefore(authenticationTokenFilter, UsernamePasswordAuthenticationFilter.class);

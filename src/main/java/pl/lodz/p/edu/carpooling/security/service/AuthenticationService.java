@@ -20,7 +20,7 @@ public class AuthenticationService implements UserDetailsService {
     @Override
     @Transactional
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Account account = accountDAO.findAccountByLogin(username)
+        Account account = accountDAO.findByLogin(username)
                 .orElseThrow(() -> new UsernameNotFoundException("user not found with username: " + username));
 
         return AccountDetails.build(account);

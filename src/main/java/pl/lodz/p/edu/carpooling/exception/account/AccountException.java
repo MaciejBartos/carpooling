@@ -6,8 +6,10 @@ import pl.lodz.p.edu.carpooling.exception.BaseAppException;
 
 public class AccountException extends BaseAppException {
 
-    private static final String ACCOUNT_DOES_NOT_EXIST = "Account does not exist!";
-    private static final String SAME_PASSWORDS = "You cannot change password to the same";
+    private static final String ACCOUNT_DOES_NOT_EXIST = "account-does-not-exist";
+    private static final String SAME_PASSWORDS = "account-new-password-same-as-old";
+    private static final String WRONG_CURRENT_PASSWORD = "account-wrong-current-password";
+    private static final String REPEAT_PASSWORD_DIFFERS_FROM_NEW_PASSWORD = "account-repeat-password-differs-from-new-password";
 
     public AccountException(HttpStatus status) {
         super(status);
@@ -26,6 +28,14 @@ public class AccountException extends BaseAppException {
     }
 
     public static AccountException changeToTheSamePasswordException() {
-        return new AccountException(HttpStatus.CONFLICT, SAME_PASSWORDS);
+        return new AccountException(HttpStatus.UNPROCESSABLE_ENTITY, SAME_PASSWORDS);
+    }
+
+    public static AccountException wrongCurrentPasswordException() {
+        return new AccountException(HttpStatus.UNPROCESSABLE_ENTITY, WRONG_CURRENT_PASSWORD);
+    }
+
+    public static AccountException repeatPasswordDiffersFromNewPasswordException() {
+        return new AccountException(HttpStatus.UNPROCESSABLE_ENTITY, REPEAT_PASSWORD_DIFFERS_FROM_NEW_PASSWORD);
     }
 }

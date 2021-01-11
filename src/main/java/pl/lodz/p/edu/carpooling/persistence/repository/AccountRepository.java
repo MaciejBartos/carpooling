@@ -9,6 +9,7 @@ import pl.lodz.p.edu.carpooling.persistence.entity.Account;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.transaction.Transactional;
+import java.util.List;
 
 @Repository
 @RequiredArgsConstructor
@@ -16,11 +17,19 @@ import javax.transaction.Transactional;
 public class AccountRepository {
 
     @PersistenceContext
-    private EntityManager entityManager;
+    private final EntityManager entityManager;
     private final AccountDAO accountDAO;
 
     public Account findById(Long id) {
         return accountDAO.findById(id).orElseThrow(AccountException::accountDoesNotExistException);
+    }
+
+    public Account findByLogin(String login) {
+        return accountDAO.findByLogin(login).orElseThrow(AccountException::accountDoesNotExistException);
+    }
+
+    public List<Account> findAllWithSearchCriteria(String searchCriteria) {
+        return accountDAO.findAllWithSearchCriteria(searchCriteria);
     }
 
     public void save(Account account) {

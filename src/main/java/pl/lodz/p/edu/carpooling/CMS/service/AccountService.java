@@ -3,10 +3,15 @@ package pl.lodz.p.edu.carpooling.CMS.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import pl.lodz.p.edu.carpooling.CMS.dto.AccountDTO;
 import pl.lodz.p.edu.carpooling.CMS.dto.AccountDetailsDTO;
-import pl.lodz.p.edu.carpooling.CMS.dto.ChangePasswordDTO;
+import pl.lodz.p.edu.carpooling.CMS.dto.AccountRolesDTO;
+import pl.lodz.p.edu.carpooling.CMS.request.ChangePasswordRequest;
+import pl.lodz.p.edu.carpooling.CMS.request.UpdateAccountRequest;
+import pl.lodz.p.edu.carpooling.CMS.response.AccountDetailsResponse;
+import pl.lodz.p.edu.carpooling.CMS.response.model.AccountDetailsForList;
 import pl.lodz.p.edu.carpooling.CMS.service.converter.AccountToAccountDetailsDTOConverter;
+import pl.lodz.p.edu.carpooling.CMS.service.converter.AccountToAccountDetailsForListConverter;
+import pl.lodz.p.edu.carpooling.CMS.service.converter.AccountToAccountDetailsResponseConverter;
 import pl.lodz.p.edu.carpooling.exception.account.AccountException;
 import pl.lodz.p.edu.carpooling.persistence.entity.Account;
 import pl.lodz.p.edu.carpooling.persistence.entity.Address;
@@ -18,6 +23,9 @@ import pl.lodz.p.edu.carpooling.persistence.repository.RoleRepository;
 import pl.lodz.p.edu.carpooling.security.request.SignUpRequest;
 
 import javax.transaction.Transactional;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -32,28 +40,57 @@ public class AccountService {
         Role userRole = roleRepository.findRoleByName(RoleEnum.ROLE_USER);
         Account account = prepareAccountToRegister(signUpRequest);
         account.setActive(true);
-        account.setPassword(encoder.encode(account.getPassword()));
+        account.setPassword(encoder.encode(signUpRequest.getPassword()));
         account.getRoles().add(userRole);
         accountRepository.save(account);
     }
 
     public AccountDetailsDTO getAccountById(Long id) {
-        return AccountToAccountDetailsDTOConverter.entityToDto(accountRepository.findById(id));
+        return AccountToAccountDetailsDTOConverter.convert(accountRepository.findById(id));
     }
 
-    public void updateAccount(AccountDTO accountDto) {
+    public AccountDetailsResponse getAccountDetailsByLogin(String login) {
+        return AccountToAccountDetailsResponseConverter.convert(accountRepository.findByLogin(login));
+    }
+
+    public List<AccountDetailsForList> getAccounts(String searchCriteria) {
+        List<Account> accounts = accountRepository.findAllWithSearchCriteria(searchCriteria);
+        return accounts.stream()
+                .map(AccountToAccountDetailsForListConverter::convert)
+                .collect(Collectors.toList());
+    }
+
+    public void updateAccount(UpdateAccountRequest accountDto) {
         Account account = accountRepository.findById(accountDto.getId());
         account.setEmail(accountDto.getEmail());
+        account.setVersion(accountDto.getVersion());
         accountRepository.update(account);
     }
 
-    public void updateAccountPassword(ChangePasswordDTO changePasswordDTO) {
-        Account account = accountRepository.findById(changePasswordDTO.getAccountId());
-        if (encoder.matches(changePasswordDTO.getPassword(), account.getPassword())) {
+    public void updateRoles(AccountRolesDTO accountRolesDTO) {
+        List<RoleEnum> roles = accountRolesDTO.getRoles().stream()
+                .map(RoleEnum::fromStringRoleView)
+                .collect(Collectors.toList());
+        List<Role> rolesDb = roles.stream()
+                .map(roleRepository::findRoleByName)
+                .collect(Collectors.toList());
+        Account account = accountRepository.findById(accountRolesDTO.getId());
+        account.setRoles(rolesDb);
+        accountRepository.save(account);
+    }
+
+    public void updateAccountPassword(ChangePasswordRequest changePasswordRequest) {
+        Account account = accountRepository.findById(Long.valueOf(changePasswordRequest.getAccountId()));
+        if (!encoder.matches(changePasswordRequest.getOldPassword(), account.getPassword())) {
+            throw AccountException.wrongCurrentPasswordException();
+        }
+        if (!changePasswordRequest.getNewPassword().equals(changePasswordRequest.getRepeatPassword())) {
+            throw AccountException.repeatPasswordDiffersFromNewPasswordException();
+        }
+        if (changePasswordRequest.getNewPassword().equals(changePasswordRequest.getOldPassword())) {
             throw AccountException.changeToTheSamePasswordException();
         }
-        account.setPassword(encoder.encode(changePasswordDTO.getPassword()));
-        account.setVersion(changePasswordDTO.getVersion());
+        account.setPassword(encoder.encode(changePasswordRequest.getNewPassword()));
 
         accountRepository.update(account);
     }
@@ -76,6 +113,7 @@ public class AccountService {
                 .email(signUpRequest.getEmail())
                 .password(encoder.encode(signUpRequest.getPassword()))
                 .active(true)
+                .roles(new ArrayList<>())
                 .personalData(personalData)
                 .build();
     }

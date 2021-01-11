@@ -1,14 +1,14 @@
 package pl.lodz.p.edu.carpooling.CMS.service.converter;
 
 import pl.lodz.p.edu.carpooling.CMS.dto.AccountDTO;
-import pl.lodz.p.edu.carpooling.CMS.dto.AccountDetailsDTO;
 import pl.lodz.p.edu.carpooling.CMS.dto.AddressDTO;
 import pl.lodz.p.edu.carpooling.CMS.dto.PersonalDataDTO;
+import pl.lodz.p.edu.carpooling.CMS.response.AccountDetailsResponse;
 import pl.lodz.p.edu.carpooling.persistence.entity.Account;
 
-public class AccountToAccountDetailsDTOConverter {
+public class AccountToAccountDetailsResponseConverter {
 
-    public static AccountDetailsDTO convert(Account account) {
+    public static AccountDetailsResponse convert(Account account) {
         AccountDTO accountDTO = AccountDTO.builder()
                 .id(account.getId())
                 .email(account.getEmail())
@@ -29,7 +29,7 @@ public class AccountToAccountDetailsDTOConverter {
                 .houseNumber(account.getPersonalData().getAddress().getHouseNumber())
                 .version(account.getPersonalData().getAddress().getVersion())
                 .build();
-        return AccountDetailsDTO.builder()
+        return AccountDetailsResponse.builder()
                 .account(accountDTO)
                 .address(addressDTO)
                 .personalData(personalDataDTO)

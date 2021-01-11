@@ -5,7 +5,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 public class BaseAppException extends ResponseStatusException {
 
-    public static final String OPTIMISTIC_LOCK = "Optimistic lock occurred";
+    public static final String OPTIMISTIC_LOCK = "optimistic-lock-exception";
 
     public BaseAppException(HttpStatus status) {
         super(status);

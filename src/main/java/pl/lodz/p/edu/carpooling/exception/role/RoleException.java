@@ -5,7 +5,7 @@ import pl.lodz.p.edu.carpooling.exception.BaseAppException;
 
 public class RoleException extends BaseAppException {
 
-    public static final String EXCEPTION_MESSAGE = "Role not found exception";
+    public static final String EXCEPTION_MESSAGE = "role-does-not-exist";
 
     public RoleException(HttpStatus status) {
         super(status);

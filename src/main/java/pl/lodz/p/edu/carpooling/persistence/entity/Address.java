@@ -24,7 +24,7 @@ public class Address {
 
     private Long houseNumber;
 
-    @OneToOne(mappedBy = "address")
+    @OneToOne(mappedBy = "address", cascade = CascadeType.MERGE)
     private PersonalData personalData;
 
     @Version
