@@ -19,6 +19,7 @@ public class AccountDetails implements UserDetails {
     private final Long id;
     private final String login;
     private final String email;
+    private final boolean active;
     @JsonIgnore
     private final String password;
     private final Collection<? extends GrantedAuthority> authorities;
@@ -32,6 +33,7 @@ public class AccountDetails implements UserDetails {
                 account.getId(),
                 account.getLogin(),
                 account.getEmail(),
+                account.isActive(),
                 account.getPassword(),
                 authorities);
     }
@@ -76,6 +78,6 @@ public class AccountDetails implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return active;
     }
 }

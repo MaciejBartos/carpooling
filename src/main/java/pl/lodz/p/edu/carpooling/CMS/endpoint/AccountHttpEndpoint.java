@@ -4,12 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
-import pl.lodz.p.edu.carpooling.CMS.dto.AccountDetailsDTO;
 import pl.lodz.p.edu.carpooling.CMS.dto.AccountRolesDTO;
-import pl.lodz.p.edu.carpooling.CMS.request.ChangePasswordRequest;
-import pl.lodz.p.edu.carpooling.CMS.request.GetAccountDetailsByLoginRequest;
-import pl.lodz.p.edu.carpooling.CMS.request.GetAccountsSearchCriteriaRequest;
-import pl.lodz.p.edu.carpooling.CMS.request.UpdateAccountRequest;
+import pl.lodz.p.edu.carpooling.CMS.request.*;
 import pl.lodz.p.edu.carpooling.CMS.response.AccountDetailsResponse;
 import pl.lodz.p.edu.carpooling.CMS.response.GetAccountsResponse;
 import pl.lodz.p.edu.carpooling.CMS.service.AccountService;
@@ -25,7 +21,7 @@ public class AccountHttpEndpoint {
 
     @GetMapping(path = "/details/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(value = HttpStatus.OK)
-    public AccountDetailsDTO getAccountDetailsById(@PathVariable Long id) {
+    public AccountDetailsResponse getAccountDetailsById(@PathVariable Long id) {
         return accountService.getAccountById(id);
     }
 
@@ -60,4 +56,17 @@ public class AccountHttpEndpoint {
                 .accounts(accountService.getAccounts(searchCriteriaRequest.getSearchCriteria()))
                 .build();
     }
+
+    @PutMapping(path="/admin/status", produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseStatus(value = HttpStatus.OK)
+    public void changeAccountStatus(@RequestBody ChangeAccountStatusRequest changeAccountStatusRequest) {
+        accountService.changeAccountStatus(changeAccountStatusRequest);
+    }
+
+    @PutMapping(path="/admin/password", produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseStatus(value = HttpStatus.OK)
+    public void updatePasswordAsAdmin(@RequestBody ChangePasswordAsAdminRequest changeAccountPasswordRequest) {
+        accountService.updateAccountPasswordAsAdmin(changeAccountPasswordRequest);
+    }
+
 }

@@ -3,13 +3,13 @@ package pl.lodz.p.edu.carpooling.CMS.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import pl.lodz.p.edu.carpooling.CMS.dto.AccountDetailsDTO;
 import pl.lodz.p.edu.carpooling.CMS.dto.AccountRolesDTO;
+import pl.lodz.p.edu.carpooling.CMS.request.ChangeAccountStatusRequest;
+import pl.lodz.p.edu.carpooling.CMS.request.ChangePasswordAsAdminRequest;
 import pl.lodz.p.edu.carpooling.CMS.request.ChangePasswordRequest;
 import pl.lodz.p.edu.carpooling.CMS.request.UpdateAccountRequest;
 import pl.lodz.p.edu.carpooling.CMS.response.AccountDetailsResponse;
 import pl.lodz.p.edu.carpooling.CMS.response.model.AccountDetailsForList;
-import pl.lodz.p.edu.carpooling.CMS.service.converter.AccountToAccountDetailsDTOConverter;
 import pl.lodz.p.edu.carpooling.CMS.service.converter.AccountToAccountDetailsForListConverter;
 import pl.lodz.p.edu.carpooling.CMS.service.converter.AccountToAccountDetailsResponseConverter;
 import pl.lodz.p.edu.carpooling.exception.account.AccountException;
@@ -21,6 +21,8 @@ import pl.lodz.p.edu.carpooling.persistence.entity.model.RoleEnum;
 import pl.lodz.p.edu.carpooling.persistence.repository.AccountRepository;
 import pl.lodz.p.edu.carpooling.persistence.repository.RoleRepository;
 import pl.lodz.p.edu.carpooling.security.request.SignUpRequest;
+import pl.lodz.p.edu.carpooling.util.ConfirmationTokenUtil;
+import pl.lodz.p.edu.carpooling.util.email.EmailService;
 
 import javax.transaction.Transactional;
 import java.util.ArrayList;
@@ -32,9 +34,11 @@ import java.util.stream.Collectors;
 @Transactional(value = Transactional.TxType.REQUIRES_NEW)
 public class AccountService {
 
+    private final ConfirmationTokenUtil confirmationTokenUtil;
     private final PasswordEncoder encoder;
     private final AccountRepository accountRepository;
     private final RoleRepository roleRepository;
+    private final EmailService emailService;
 
     public void registerAccount(SignUpRequest signUpRequest) {
         Role userRole = roleRepository.findRoleByName(RoleEnum.ROLE_USER);
@@ -42,11 +46,19 @@ public class AccountService {
         account.setActive(true);
         account.setPassword(encoder.encode(signUpRequest.getPassword()));
         account.getRoles().add(userRole);
+        modifyAccountConfirmationTokenAndTokenExpirationDate(account);
         accountRepository.save(account);
+        emailService.sendConfirmationRegistrationEmail(account.getConfirmationToken(), account.getEmail());
     }
 
-    public AccountDetailsDTO getAccountById(Long id) {
-        return AccountToAccountDetailsDTOConverter.convert(accountRepository.findById(id));
+    public void changeAccountStatus(ChangeAccountStatusRequest changeAccountStatusRequest) {
+        Account account = accountRepository.findById(Long.parseLong(changeAccountStatusRequest.getId()));
+        account.setActive(!account.isActive());
+        accountRepository.update(account);
+    }
+
+    public AccountDetailsResponse getAccountById(Long id) {
+        return AccountToAccountDetailsResponseConverter.convert(accountRepository.findById(id));
     }
 
     public AccountDetailsResponse getAccountDetailsByLogin(String login) {
@@ -61,7 +73,7 @@ public class AccountService {
     }
 
     public void updateAccount(UpdateAccountRequest accountDto) {
-        Account account = accountRepository.findById(accountDto.getId());
+        Account account = accountRepository.findById(Long.parseLong(accountDto.getId()));
         account.setEmail(accountDto.getEmail());
         account.setVersion(accountDto.getVersion());
         accountRepository.update(account);
@@ -95,6 +107,18 @@ public class AccountService {
         accountRepository.update(account);
     }
 
+    public void updateAccountPasswordAsAdmin(ChangePasswordAsAdminRequest changePasswordAsAdminRequest) {
+        Account account = accountRepository.findById(Long.valueOf(changePasswordAsAdminRequest.getAccountId()));
+        if (!changePasswordAsAdminRequest.getPassword().equals(changePasswordAsAdminRequest.getRepeatPassword())) {
+            throw AccountException.repeatPasswordDiffersFromNewPasswordException();
+        }
+        if (encoder.matches(changePasswordAsAdminRequest.getPassword(), account.getPassword())) {
+            throw AccountException.changeToTheSamePasswordException();
+        }
+        account.setPassword(encoder.encode(changePasswordAsAdminRequest.getPassword()));
+        accountRepository.update(account);
+    }
+
     private Account prepareAccountToRegister(SignUpRequest signUpRequest) {
         Address address = Address.builder()
                 .city(signUpRequest.getCity())
@@ -116,6 +140,12 @@ public class AccountService {
                 .roles(new ArrayList<>())
                 .personalData(personalData)
                 .build();
+    }
+
+    private void modifyAccountConfirmationTokenAndTokenExpirationDate(Account account) {
+        account.setExpiryDateOfToken(confirmationTokenUtil.getTokenExpireDate());
+        account.setConfirmationToken(confirmationTokenUtil.generateConfirmationToken(account.getLogin(),
+                account.getExpiryDateOfToken()));
     }
 
 }

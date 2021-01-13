@@ -16,7 +16,7 @@ public class AddressService {
     private final AddressRepository addressRepository;
 
     public void update(UpdateAddressRequest addressDTO) {
-        Address address = addressRepository.findById(addressDTO.getId());
+        Address address = addressRepository.findById(Long.parseLong(addressDTO.getId()));
         address.setCity(addressDTO.getCity());
         address.setHouseNumber(addressDTO.getHouseNumber());
         address.setStreet(addressDTO.getStreet());

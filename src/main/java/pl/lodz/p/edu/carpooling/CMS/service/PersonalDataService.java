@@ -16,7 +16,7 @@ public class PersonalDataService {
     private final PersonalDataRepository personalDataRepository;
 
     public void update(UpdatePersonalDataRequest personalDataDTO) {
-        PersonalData personalData = personalDataRepository.findById(personalDataDTO.getId());
+        PersonalData personalData = personalDataRepository.findById(Long.parseLong(personalDataDTO.getId()));
         personalData.setName(personalDataDTO.getName());
         personalData.setSurname(personalDataDTO.getSurname());
         personalData.setYearsOld(personalDataDTO.getYearsOld());

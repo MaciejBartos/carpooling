@@ -10,5 +10,6 @@ public class AccountDTO {
     private Long id;
     private String login;
     private String email;
+    private boolean active;
     private Long version;
 }

@@ -13,6 +13,7 @@ public class AccountToAccountDetailsResponseConverter {
                 .id(account.getId())
                 .email(account.getEmail())
                 .login(account.getLogin())
+                .active(account.isActive())
                 .version(account.getVersion())
                 .build();
         PersonalDataDTO personalDataDTO = PersonalDataDTO.builder()

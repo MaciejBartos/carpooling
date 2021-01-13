@@ -3,9 +3,6 @@ package pl.lodz.p.edu.carpooling.CMS.request;
 import lombok.Data;
 
 @Data
-public class UpdateAccountRequest {
-
+public class ChangeAccountStatusRequest {
     private String id;
-    private String email;
-    private Long version;
 }

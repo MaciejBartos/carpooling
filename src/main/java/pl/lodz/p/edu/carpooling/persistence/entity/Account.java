@@ -3,6 +3,7 @@ package pl.lodz.p.edu.carpooling.persistence.entity;
 import lombok.*;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,6 +27,12 @@ public class Account {
     private String password;
 
     private boolean active;
+
+    private boolean confirmed;
+
+    private String confirmationToken;
+
+    private LocalDateTime expiryDateOfToken;
 
     @ManyToMany
     @JoinTable(name = "account_role",
