@@ -30,9 +30,9 @@ public class Account {
 
     private boolean confirmed;
 
-    private String confirmationToken;
+    private String emailToken;
 
-    private LocalDateTime expiryDateOfToken;
+    private LocalDateTime expiryDateOfEmailToken;
 
     @ManyToMany
     @JoinTable(name = "account_role",

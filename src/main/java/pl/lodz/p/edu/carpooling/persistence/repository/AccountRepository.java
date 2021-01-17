@@ -28,6 +28,11 @@ public class AccountRepository {
         return accountDAO.findByLogin(login).orElseThrow(AccountException::accountDoesNotExistException);
     }
 
+    public Account findByConfirmationToken(String confirmationToken) {
+        return accountDAO.findByEmailToken(confirmationToken)
+                .orElseThrow(AccountException::accountDoesNotExistException);
+    }
+
     public List<Account> findAllWithSearchCriteria(String searchCriteria) {
         return accountDAO.findAllWithSearchCriteria(searchCriteria);
     }

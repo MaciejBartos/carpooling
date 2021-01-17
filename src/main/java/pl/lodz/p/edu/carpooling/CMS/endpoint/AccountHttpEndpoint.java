@@ -68,5 +68,4 @@ public class AccountHttpEndpoint {
     public void updatePasswordAsAdmin(@RequestBody ChangePasswordAsAdminRequest changeAccountPasswordRequest) {
         accountService.updateAccountPasswordAsAdmin(changeAccountPasswordRequest);
     }
-
 }

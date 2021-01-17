@@ -20,11 +20,13 @@ import pl.lodz.p.edu.carpooling.persistence.entity.Role;
 import pl.lodz.p.edu.carpooling.persistence.entity.model.RoleEnum;
 import pl.lodz.p.edu.carpooling.persistence.repository.AccountRepository;
 import pl.lodz.p.edu.carpooling.persistence.repository.RoleRepository;
+import pl.lodz.p.edu.carpooling.security.request.ConfirmAccountRequest;
 import pl.lodz.p.edu.carpooling.security.request.SignUpRequest;
 import pl.lodz.p.edu.carpooling.util.ConfirmationTokenUtil;
 import pl.lodz.p.edu.carpooling.util.email.EmailService;
 
 import javax.transaction.Transactional;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -48,7 +50,16 @@ public class AccountService {
         account.getRoles().add(userRole);
         modifyAccountConfirmationTokenAndTokenExpirationDate(account);
         accountRepository.save(account);
-        emailService.sendConfirmationRegistrationEmail(account.getConfirmationToken(), account.getEmail());
+        emailService.sendConfirmationRegistrationEmail(account.getEmailToken(), account.getEmail());
+    }
+
+    public void confirmAccount(ConfirmAccountRequest confirmAccountRequest) {
+        Account account = accountRepository.findByConfirmationToken(confirmAccountRequest.getToken());
+        if (account.getExpiryDateOfEmailToken().isBefore(LocalDateTime.now())) {
+            throw AccountException.emailTokenExpiredException();
+        }
+        account.setConfirmed(true);
+        accountRepository.save(account);
     }
 
     public void changeAccountStatus(ChangeAccountStatusRequest changeAccountStatusRequest) {
@@ -143,9 +154,9 @@ public class AccountService {
     }
 
     private void modifyAccountConfirmationTokenAndTokenExpirationDate(Account account) {
-        account.setExpiryDateOfToken(confirmationTokenUtil.getTokenExpireDate());
-        account.setConfirmationToken(confirmationTokenUtil.generateConfirmationToken(account.getLogin(),
-                account.getExpiryDateOfToken()));
+        account.setExpiryDateOfEmailToken(confirmationTokenUtil.getTokenExpireDate());
+        account.setEmailToken(confirmationTokenUtil.generateConfirmationToken(account.getLogin(),
+                account.getExpiryDateOfEmailToken()));
     }
 
 }
