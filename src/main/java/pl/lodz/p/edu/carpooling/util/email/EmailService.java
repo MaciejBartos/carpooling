@@ -25,6 +25,10 @@ public class EmailService {
         sendEmailWithMessage(emailTemplateFactory.createRegistrationEmailTemplate(token), receiverEmail);
     }
 
+    public void sendResetPasswordEmail(String token, String receiverEmail) {
+        sendEmailWithMessage(emailTemplateFactory.createResetPasswordEmailTemplate(token), receiverEmail);
+    }
+
     private void sendEmailWithMessage(EmailTemplate emailTemplate, String receiverEmail) {
         try {
             MimeMessage mimeMessage = sender.createMimeMessage();

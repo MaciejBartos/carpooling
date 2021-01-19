@@ -4,10 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import pl.lodz.p.edu.carpooling.CMS.dto.AccountRolesDTO;
-import pl.lodz.p.edu.carpooling.CMS.request.ChangeAccountStatusRequest;
-import pl.lodz.p.edu.carpooling.CMS.request.ChangePasswordAsAdminRequest;
-import pl.lodz.p.edu.carpooling.CMS.request.ChangePasswordRequest;
-import pl.lodz.p.edu.carpooling.CMS.request.UpdateAccountRequest;
+import pl.lodz.p.edu.carpooling.CMS.request.*;
 import pl.lodz.p.edu.carpooling.CMS.response.AccountDetailsResponse;
 import pl.lodz.p.edu.carpooling.CMS.response.model.AccountDetailsForList;
 import pl.lodz.p.edu.carpooling.CMS.service.converter.AccountToAccountDetailsForListConverter;
@@ -48,15 +45,20 @@ public class AccountService {
         account.setActive(true);
         account.setPassword(encoder.encode(signUpRequest.getPassword()));
         account.getRoles().add(userRole);
-        modifyAccountConfirmationTokenAndTokenExpirationDate(account);
+        account.setExpiryDateOfEmailToken(confirmationTokenUtil.getTokenExpireDate());
+        account.setConfirmationEmailToken(confirmationTokenUtil.generateEmailToken(account.getLogin(),
+                account.getExpiryDateOfEmailToken()));
         accountRepository.save(account);
-        emailService.sendConfirmationRegistrationEmail(account.getEmailToken(), account.getEmail());
+        emailService.sendConfirmationRegistrationEmail(account.getConfirmationEmailToken(), account.getEmail());
     }
 
     public void confirmAccount(ConfirmAccountRequest confirmAccountRequest) {
         Account account = accountRepository.findByConfirmationToken(confirmAccountRequest.getToken());
         if (account.getExpiryDateOfEmailToken().isBefore(LocalDateTime.now())) {
             throw AccountException.emailTokenExpiredException();
+        }
+        if (account.isConfirmed()) {
+            throw AccountException.accountAlreadyConfirmedException();
         }
         account.setConfirmed(true);
         accountRepository.save(account);
@@ -130,6 +132,38 @@ public class AccountService {
         accountRepository.update(account);
     }
 
+    public void sendResetPasswordEmail(SendResetPasswordEmailRequest sendResetPasswordEmailRequest) {
+        Account account = accountRepository.findByEmail(sendResetPasswordEmailRequest.getEmail());
+        if (!account.isConfirmed()) {
+            throw AccountException.accountNotConfirmedException();
+        }
+        if (!account.isActive()) {
+            throw AccountException.accountNotActiveException();
+        }
+        account.setExpiryDateOfEmailToken(confirmationTokenUtil.getTokenExpireDate());
+        account.setResetPasswordEmailToken(confirmationTokenUtil.generateEmailToken(account.getLogin(),
+                account.getExpiryDateOfEmailToken()));
+        accountRepository.save(account);
+        emailService.sendResetPasswordEmail(account.getResetPasswordEmailToken(), account.getEmail());
+    }
+
+    public void resetPassword(ResetPasswordRequest resetPasswordRequest) {
+        Account account = accountRepository.findByResetPasswordToken(resetPasswordRequest.getToken());
+        if (!resetPasswordRequest.getPassword().equals(resetPasswordRequest.getRepeatPassword())) {
+            throw AccountException.repeatPasswordDiffersFromNewPasswordException();
+        }
+        if (encoder.matches(resetPasswordRequest.getPassword(), account.getPassword())) {
+            throw AccountException.changeToTheSamePasswordException();
+        }
+        account.setPassword(encoder.encode(resetPasswordRequest.getPassword()));
+        account.setResetPasswordEmailToken(null);
+        accountRepository.save(account);
+    }
+
+    public void verifyResetPasswordToken(VerifyResetPasswordTokenRequest verifyResetPasswordTokenRequest) {
+        accountRepository.findByResetPasswordToken(verifyResetPasswordTokenRequest.getToken());
+    }
+
     private Account prepareAccountToRegister(SignUpRequest signUpRequest) {
         Address address = Address.builder()
                 .city(signUpRequest.getCity())
@@ -151,12 +185,6 @@ public class AccountService {
                 .roles(new ArrayList<>())
                 .personalData(personalData)
                 .build();
-    }
-
-    private void modifyAccountConfirmationTokenAndTokenExpirationDate(Account account) {
-        account.setExpiryDateOfEmailToken(confirmationTokenUtil.getTokenExpireDate());
-        account.setEmailToken(confirmationTokenUtil.generateConfirmationToken(account.getLogin(),
-                account.getExpiryDateOfEmailToken()));
     }
 
 }

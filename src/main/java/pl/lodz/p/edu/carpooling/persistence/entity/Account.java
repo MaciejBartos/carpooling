@@ -20,8 +20,10 @@ public class Account {
     @GeneratedValue
     private Long id;
 
+    @Column(unique=true)
     private String login;
 
+    @Column(unique=true)
     private String email;
 
     private String password;
@@ -30,7 +32,9 @@ public class Account {
 
     private boolean confirmed;
 
-    private String emailToken;
+    private String confirmationEmailToken;
+
+    private String resetPasswordEmailToken;
 
     private LocalDateTime expiryDateOfEmailToken;
 

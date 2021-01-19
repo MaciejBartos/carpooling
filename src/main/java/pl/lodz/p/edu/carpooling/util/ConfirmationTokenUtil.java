@@ -21,7 +21,7 @@ public class ConfirmationTokenUtil {
         return LocalDateTime.now().plusMinutes(Long.parseLong(timeToConfirmAccount));
     }
 
-    public String generateConfirmationToken(String value, LocalDateTime dateTime) {
+    public String generateEmailToken(String value, LocalDateTime dateTime) {
         return encoder.encode(value + secretKey + dateTime);
     }
 }

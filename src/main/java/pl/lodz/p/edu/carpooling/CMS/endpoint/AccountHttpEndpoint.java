@@ -49,6 +49,24 @@ public class AccountHttpEndpoint {
         accountService.updateAccountPassword(changePasswordRequest);
     }
 
+    @PostMapping(path = "/password/reset", produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseStatus(value = HttpStatus.OK)
+    public void sendResetPasswordEmail(@RequestBody SendResetPasswordEmailRequest sendResetPasswordEmailRequest) {
+        accountService.sendResetPasswordEmail(sendResetPasswordEmailRequest);
+    }
+
+    @PutMapping(path = "/password/reset", produces = MediaType.APPLICATION_PDF_VALUE)
+    @ResponseStatus(value = HttpStatus.OK)
+    public void resetPassword(@RequestBody ResetPasswordRequest resetPasswordRequest) {
+        accountService.resetPassword(resetPasswordRequest);
+    }
+
+    @PostMapping(path = "/password/reset/verify", produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseStatus(value = HttpStatus.OK)
+    public void verifyResetPasswordToken(@RequestBody VerifyResetPasswordTokenRequest verifyResetPasswordTokenRequest) {
+        accountService.verifyResetPasswordToken(verifyResetPasswordTokenRequest);
+    }
+
     @PostMapping(path = "/admin", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(value = HttpStatus.OK)
     public GetAccountsResponse getAccounts(@RequestBody GetAccountsSearchCriteriaRequest searchCriteriaRequest) {

@@ -20,6 +20,15 @@ public class AccountRepository {
     private final EntityManager entityManager;
     private final AccountDAO accountDAO;
 
+    public Account findByResetPasswordToken(String token) {
+        return accountDAO.findByResetPasswordEmailToken(token)
+                .orElseThrow(AccountException::accountDoesNotExistException);
+    }
+
+    public Account findByEmail(String email) {
+        return accountDAO.findByEmail(email).orElseThrow(AccountException::accountDoesNotExistException);
+    }
+
     public Account findById(Long id) {
         return accountDAO.findById(id).orElseThrow(AccountException::accountDoesNotExistException);
     }
@@ -29,7 +38,7 @@ public class AccountRepository {
     }
 
     public Account findByConfirmationToken(String confirmationToken) {
-        return accountDAO.findByEmailToken(confirmationToken)
+        return accountDAO.findByConfirmationEmailToken(confirmationToken)
                 .orElseThrow(AccountException::accountDoesNotExistException);
     }
 

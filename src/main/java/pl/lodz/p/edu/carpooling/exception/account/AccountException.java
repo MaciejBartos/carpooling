@@ -11,6 +11,9 @@ public class AccountException extends BaseAppException {
     private static final String WRONG_CURRENT_PASSWORD = "account-wrong-current-password";
     private static final String REPEAT_PASSWORD_DIFFERS_FROM_NEW_PASSWORD = "account-repeat-password-differs-from-new-password";
     private static final String EMAIL_TOKEN_EXPIRED = "account-confirmation-token-expired";
+    private static final String ACCOUNT_NOT_CONFIRMED = "account-not-confirmed";
+    private static final String ACCOUNT_NOT_ACTIVE = "account-not-active";
+    private static final String ACCOUNT_ALREADY_CONFIRMED = "account-already-confirmed";
 
     public AccountException(HttpStatus status) {
         super(status);
@@ -42,5 +45,17 @@ public class AccountException extends BaseAppException {
 
     public static AccountException emailTokenExpiredException() {
         return new AccountException(HttpStatus.UNPROCESSABLE_ENTITY, EMAIL_TOKEN_EXPIRED);
+    }
+
+    public static AccountException accountNotConfirmedException() {
+        return new AccountException(HttpStatus.UNPROCESSABLE_ENTITY, ACCOUNT_NOT_CONFIRMED);
+    }
+
+    public static AccountException accountNotActiveException() {
+        return new AccountException(HttpStatus.UNPROCESSABLE_ENTITY, ACCOUNT_NOT_ACTIVE);
+    }
+
+    public static AccountException accountAlreadyConfirmedException() {
+        return new AccountException(HttpStatus.UNPROCESSABLE_ENTITY, ACCOUNT_ALREADY_CONFIRMED);
     }
 }
