@@ -3,6 +3,7 @@ package pl.lodz.p.edu.carpooling.persistence.entity;
 import lombok.*;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "personal_data")
@@ -22,7 +23,7 @@ public class PersonalData {
 
     private String surname;
 
-    private Long yearsOld;
+    private LocalDate birthDate;
 
     @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinColumn(name = "address_id", referencedColumnName = "id")

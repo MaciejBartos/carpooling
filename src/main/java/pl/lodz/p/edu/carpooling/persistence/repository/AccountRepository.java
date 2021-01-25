@@ -1,8 +1,11 @@
 package pl.lodz.p.edu.carpooling.persistence.repository;
 
 import lombok.RequiredArgsConstructor;
+import org.hibernate.exception.ConstraintViolationException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Repository;
 import pl.lodz.p.edu.carpooling.exception.account.AccountException;
+import pl.lodz.p.edu.carpooling.exception.validation.ValidationException;
 import pl.lodz.p.edu.carpooling.persistence.dao.AccountDAO;
 import pl.lodz.p.edu.carpooling.persistence.entity.Account;
 
@@ -47,7 +50,19 @@ public class AccountRepository {
     }
 
     public void save(Account account) {
-        accountDAO.saveAndFlush(account);
+        try {
+            accountDAO.saveAndFlush(account);
+        } catch (DataIntegrityViolationException e) {
+            if (e.getCause() instanceof ConstraintViolationException) {
+                String validationMessage = e.getCause().getCause().getMessage();
+                if (validationMessage.contains("email")) {
+                    throw ValidationException.accountEmailUsedValidationException();
+                } else if (validationMessage.contains("login")) {
+                    throw ValidationException.accountLoginUsedValidationException();
+                }
+            }
+            throw e;
+        }
     }
 
     public void update(Account account) {

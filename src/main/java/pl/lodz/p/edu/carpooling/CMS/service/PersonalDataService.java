@@ -19,7 +19,7 @@ public class PersonalDataService {
         PersonalData personalData = personalDataRepository.findById(Long.parseLong(personalDataDTO.getId()));
         personalData.setName(personalDataDTO.getName());
         personalData.setSurname(personalDataDTO.getSurname());
-        personalData.setYearsOld(personalDataDTO.getYearsOld());
+        personalData.setBirthDate(personalDataDTO.getBirthDate());
         personalData.setVersion(personalDataDTO.getVersion());
         personalDataRepository.update(personalData);
     }

@@ -174,7 +174,7 @@ public class AccountService {
                 .address(address)
                 .name(signUpRequest.getName())
                 .surname(signUpRequest.getSurname())
-                .yearsOld(signUpRequest.getYearsOld())
+                .birthDate(signUpRequest.getBirthDate())
                 .build();
 
         return Account.builder()

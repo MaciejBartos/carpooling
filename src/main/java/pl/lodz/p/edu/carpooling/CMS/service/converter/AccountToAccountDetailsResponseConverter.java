@@ -20,7 +20,7 @@ public class AccountToAccountDetailsResponseConverter {
                 .id(account.getPersonalData().getId())
                 .name(account.getPersonalData().getName())
                 .surname(account.getPersonalData().getSurname())
-                .yearsOld(account.getPersonalData().getYearsOld())
+                .birthDate(account.getPersonalData().getBirthDate())
                 .version(account.getPersonalData().getVersion())
                 .build();
         AddressDTO addressDTO = AddressDTO.builder()
