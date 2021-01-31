@@ -8,7 +8,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-import pl.lodz.p.edu.carpooling.CMS.service.AccountService;
+import pl.lodz.p.edu.carpooling.module.service.customer.service.AccountService;
 import pl.lodz.p.edu.carpooling.security.request.ConfirmAccountRequest;
 import pl.lodz.p.edu.carpooling.security.request.SignInRequest;
 import pl.lodz.p.edu.carpooling.security.request.SignUpRequest;

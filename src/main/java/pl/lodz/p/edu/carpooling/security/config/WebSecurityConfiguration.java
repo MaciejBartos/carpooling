@@ -49,6 +49,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
                     .antMatchers("/account/password/reset/verify").permitAll()
                     .antMatchers("/account/**").hasRole("USER")
                     .antMatchers("/account/admin/**").hasRole("ADMIN")
+                    .antMatchers("/vehicle").hasRole("USER")
                     .anyRequest().authenticated();
 
         http.addFilterBefore(authenticationTokenFilter, UsernamePasswordAuthenticationFilter.class);
