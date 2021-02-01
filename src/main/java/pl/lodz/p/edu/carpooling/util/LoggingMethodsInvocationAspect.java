@@ -14,7 +14,7 @@ import pl.lodz.p.edu.carpooling.exception.BaseAppException;
 @Slf4j
 public class LoggingMethodsInvocationAspect {
 
-    @Around("execution(* pl.lodz.p.edu.carpooling.CMS..* (..)) || " +
+    @Around("execution(* pl.lodz.p.edu.carpooling.module.service..*(..)) || " +
             "execution(* pl.lodz.p.edu.carpooling.persistence.dao..*(..)) || " +
             "execution(* pl.lodz.p.edu.carpooling.persistence.repository..*(..))")
     public Object logMethod(ProceedingJoinPoint joinPoint) throws Throwable {

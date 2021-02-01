@@ -1,16 +1,18 @@
-package pl.lodz.p.edu.carpooling.module.service.carpooling.response;
+package pl.lodz.p.edu.carpooling.module.service.carpooling.request.model;
 
 import lombok.Builder;
 import lombok.Data;
 
+import java.time.LocalDate;
+
 @Data
 @Builder
-public class GetVehicleDetailsToUpdateResponse {
+public class VehicleDetails {
 
     private String id;
     private String brand;
     private String model;
-    private long productionYear;
+    private LocalDate productionDate;
     private String description;
     private long numberOfSeats;
     private long version;

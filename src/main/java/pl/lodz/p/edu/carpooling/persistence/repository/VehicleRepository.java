@@ -37,4 +37,8 @@ public class VehicleRepository {
         vehicleDAO.saveAndFlush(vehicle);
     }
 
+    public void delete(Vehicle vehicle) {
+        vehicleDAO.delete(vehicle);
+    }
+
 }

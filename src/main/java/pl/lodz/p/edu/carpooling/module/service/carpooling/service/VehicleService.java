@@ -26,15 +26,15 @@ public class VehicleService {
 
     private final VehicleRepository vehicleRepository;
     private final AccountRepository accountRepository;
-    private final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
 
     public void createVehicle(CreateVehicleRequest request) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Account account = accountRepository.findByLogin(authentication.getName());
         Vehicle vehicle = Vehicle.builder()
                 .brand(request.getBrand())
                 .model(request.getModel())
-                .productionDate(request.getProductionDate())
+                .productionYear(request.getProductionYear())
                 .numberOfSeats(request.getNumberOfSeats())
                 .description(request.getDescription())
                 .owner(account)
@@ -43,37 +43,49 @@ public class VehicleService {
     }
 
     public List<VehicleDetailsForList> getVehiclesAssignedToAuthenticatedAccount() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         return vehicleRepository.findByAccountLogin(authentication.getName()).stream()
                 .map(VehicleToVehicleDetailsForListConverter::convert)
                 .collect(Collectors.toList());
     }
 
     public GetVehicleDetailsToUpdateResponse getVehicleDetails(Long id) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Vehicle vehicle = vehicleRepository.findById(id);
         if (!authentication.getName().equals(vehicle.getOwner().getLogin())) {
             throw VehicleException.vehicleIsNotConnectedWithAccountException();
         }
         return GetVehicleDetailsToUpdateResponse.builder()
-                .id(vehicle.getId())
+                .id(vehicle.getId().toString())
                 .brand(vehicle.getBrand())
                 .model(vehicle.getModel())
                 .description(vehicle.getDescription())
                 .numberOfSeats(vehicle.getNumberOfSeats())
-                .productionDate(vehicle.getProductionDate())
+                .productionYear(vehicle.getProductionYear())
                 .version(vehicle.getVersion())
                 .build();
     }
 
     public void updateVehicle(UpdateVehicleRequest request) {
-        Vehicle vehicle = vehicleRepository.findById(request.getId());
+        Vehicle vehicle = vehicleRepository.findById(Long.valueOf(request.getId()));
+
         vehicle.setBrand(request.getBrand());
         vehicle.setModel(request.getModel());
         vehicle.setDescription(request.getDescription());
         vehicle.setNumberOfSeats(request.getNumberOfSeats());
-        vehicle.setProductionDate(request.getProductionDate());
+        vehicle.setProductionYear(request.getProductionYear());
         vehicle.setVersion(request.getVersion());
         vehicleRepository.update(vehicle);
     }
 
+    public void deleteVehicle(String id) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Vehicle vehicle = vehicleRepository.findById(Long.parseLong(id));
+        if (!authentication.getName().equals(vehicle.getOwner().getLogin())) {
+            throw VehicleException.vehicleIsNotConnectedWithAccountException();
+        }
+
+        vehicleRepository.delete(vehicle);
+    }
 
 }

@@ -3,7 +3,6 @@ package pl.lodz.p.edu.carpooling.persistence.entity;
 import lombok.*;
 
 import javax.persistence.*;
-import java.time.LocalDate;
 
 @Entity
 @Table(name = "vehicle")
@@ -22,7 +21,7 @@ public class Vehicle {
 
     private String model;
 
-    private LocalDate productionDate;
+    private Long productionYear;
 
     private String description;
 

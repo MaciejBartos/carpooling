@@ -42,4 +42,10 @@ public class VehicleHttpEndpoint {
     public void updateVehicle(@RequestBody UpdateVehicleRequest request) {
         vehicleService.updateVehicle(request);
     }
+
+    @DeleteMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseStatus(value = HttpStatus.OK)
+    public void deleteVehicle(@PathVariable String id) {
+        vehicleService.deleteVehicle(id);
+    }
 }
