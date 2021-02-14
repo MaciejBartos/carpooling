@@ -6,6 +6,7 @@ import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 @Table(name = "account")
@@ -41,9 +42,15 @@ public class Account {
     @ManyToMany
     @JoinTable(name = "account_role",
             joinColumns = @JoinColumn(name = "accountId", referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(name = "roleId", referencedColumnName = "id"),
-            uniqueConstraints = @UniqueConstraint(name = "accountId_roleId_unique", columnNames = {"accountId", "roleId"}))
+            inverseJoinColumns = @JoinColumn(name = "roleId", referencedColumnName = "id")
+    )
     private List<Role> roles = new ArrayList<>();
+
+    @OneToMany(mappedBy = "host")
+    private List<Direction> createdDirections = new ArrayList<>();
+
+    @ManyToMany(mappedBy = "guests")
+    private List<Direction> directionsAssignedTo = new ArrayList<>();
 
     @OneToMany(mappedBy = "owner")
     private List<Vehicle> vehicles = new ArrayList<>();
@@ -55,4 +62,25 @@ public class Account {
     @Version
     private Long version;
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Account account = (Account) o;
+        return active == account.active &&
+                confirmed == account.confirmed &&
+                id.equals(account.id) &&
+                login.equals(account.login) &&
+                email.equals(account.email) &&
+                password.equals(account.password) &&
+                Objects.equals(confirmationEmailToken, account.confirmationEmailToken) &&
+                Objects.equals(resetPasswordEmailToken, account.resetPasswordEmailToken) &&
+                Objects.equals(expiryDateOfEmailToken, account.expiryDateOfEmailToken) &&
+                version.equals(account.version);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, login, email, password, active, confirmed, confirmationEmailToken, resetPasswordEmailToken, expiryDateOfEmailToken, version);
+    }
 }

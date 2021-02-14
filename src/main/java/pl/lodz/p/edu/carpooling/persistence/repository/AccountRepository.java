@@ -69,4 +69,9 @@ public class AccountRepository {
         entityManager.detach(account);
         accountDAO.saveAndFlush(account);
     }
+
+    public void deleteAllNotConfirmedAccounts() {
+        List<Account> accounts = accountDAO.findAllByConfirmed(false);
+        accountDAO.deleteInBatch(accounts);
+    }
 }

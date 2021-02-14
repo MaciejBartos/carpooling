@@ -25,7 +25,7 @@ public class Vehicle {
 
     private String description;
 
-    private Long numberOfSeats;
+    private Integer numberOfSeats;
 
     @ManyToOne
     @JoinColumn(name = "account_id", referencedColumnName = "id")

@@ -18,7 +18,10 @@ import pl.lodz.p.edu.carpooling.security.util.AuthenticationTokenFilter;
 
 @Configuration
 @EnableWebSecurity
-@EnableGlobalMethodSecurity(prePostEnabled = true)
+@EnableGlobalMethodSecurity(
+        prePostEnabled = true,
+        securedEnabled = true,
+        jsr250Enabled = true)
 @RequiredArgsConstructor
 public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
@@ -42,15 +45,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http.cors().and().csrf().disable()
                 .exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
-                .authorizeRequests()
-                    .antMatchers("/auth/**").permitAll()
-                    .antMatchers("/account/password/reset").permitAll()
-                    .antMatchers("/account/password/reset/verify").permitAll()
-                    .antMatchers("/account/**").hasRole("USER")
-                    .antMatchers("/account/admin/**").hasRole("ADMIN")
-                    .antMatchers("/vehicle").hasRole("USER")
-                    .anyRequest().authenticated();
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
         http.addFilterBefore(authenticationTokenFilter, UsernamePasswordAuthenticationFilter.class);
     }

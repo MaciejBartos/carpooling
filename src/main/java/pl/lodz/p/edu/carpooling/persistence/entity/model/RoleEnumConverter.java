@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Optional;
 
 public class RoleEnumConverter implements AttributeConverter<RoleEnum, String> {
+
     @Override
     public String convertToDatabaseColumn(RoleEnum attribute) {
         return attribute.getRoleDb();

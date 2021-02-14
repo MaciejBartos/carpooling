@@ -4,9 +4,8 @@ import lombok.Getter;
 
 @Getter
 public enum RoleEnum {
-    ROLE_USER("USER", "user"),
-    ROLE_ADMIN("ADMIN", "admin"),
-    ROLE_DRIVER("DRIVER", "driver");
+    ROLE_USER("USER", "User"),
+    ROLE_ADMIN("ADMIN", "Admin");
 
     private final String roleDb;
     private final String roleView;

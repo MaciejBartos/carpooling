@@ -3,12 +3,13 @@ package pl.lodz.p.edu.carpooling.security.endpoint;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-import pl.lodz.p.edu.carpooling.module.service.customer.service.AccountService;
+import pl.lodz.p.edu.carpooling.module.customer.service.AccountService;
 import pl.lodz.p.edu.carpooling.security.request.ConfirmAccountRequest;
 import pl.lodz.p.edu.carpooling.security.request.SignInRequest;
 import pl.lodz.p.edu.carpooling.security.request.SignUpRequest;
@@ -28,6 +29,7 @@ public class AuthenticationHttpEndpoint {
 
     @PostMapping("/signin")
     @ResponseStatus(value = HttpStatus.OK)
+    @PreAuthorize("permitAll()")
     public JwtResponse authenticateUser(@Valid @RequestBody SignInRequest signInRequest) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(signInRequest.getLogin(), signInRequest.getPassword()));
@@ -39,12 +41,14 @@ public class AuthenticationHttpEndpoint {
 
     @PostMapping("/signup")
     @ResponseStatus(value = HttpStatus.CREATED)
+    @PreAuthorize("permitAll()")
     public void registerUser(@Valid @RequestBody SignUpRequest signUpRequest) {
         accountService.registerAccount(signUpRequest);
     }
 
     @PutMapping(path = "/confirm", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(value = HttpStatus.OK)
+    @PreAuthorize("permitAll()")
     public void confirmAccount(@Valid @RequestBody ConfirmAccountRequest confirmAccountRequest) {
         accountService.confirmAccount(confirmAccountRequest);
     }

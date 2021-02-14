@@ -17,4 +17,8 @@ public class EmailTemplateFactory {
         return new ResetPasswordEmailTemplate(token, address);
     }
 
+    public EmailTemplate createDirectionDeletedEmailTemplate(String directionId) {
+        return new DeletedDirectionEmailTemplate(directionId, address);
+    }
+
 }

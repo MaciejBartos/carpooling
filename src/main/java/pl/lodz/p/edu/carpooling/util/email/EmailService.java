@@ -29,17 +29,24 @@ public class EmailService {
         sendEmailWithMessage(emailTemplateFactory.createResetPasswordEmailTemplate(token), receiverEmail);
     }
 
+    public void sendDirectionHasBeenDeletedByTheCreatorEmailForAssignedUser(String receiverEmail, String directionId) {
+        sendEmailWithMessage(emailTemplateFactory.createDirectionDeletedEmailTemplate(directionId), receiverEmail);
+    }
+
     private void sendEmailWithMessage(EmailTemplate emailTemplate, String receiverEmail) {
-        try {
-            MimeMessage mimeMessage = sender.createMimeMessage();
-            MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage);
-            mimeMessageHelper.setFrom(senderEmail);
-            mimeMessageHelper.setTo(receiverEmail);
-            mimeMessageHelper.setSubject(emailTemplate.getSubject());
-            mimeMessageHelper.setText(emailTemplate.getBody(), true);
-            sender.send(mimeMessage);
-        } catch (MessagingException e) {
-            throw EmailException.createSendingEmailErrorException(e.getCause());
-        }
+        Thread emailSenderThread = new Thread(() -> {
+            try {
+                MimeMessage mimeMessage = sender.createMimeMessage();
+                MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage);
+                mimeMessageHelper.setFrom(senderEmail);
+                mimeMessageHelper.setTo(receiverEmail);
+                mimeMessageHelper.setSubject(emailTemplate.getSubject());
+                mimeMessageHelper.setText(emailTemplate.getBody(), true);
+                sender.send(mimeMessage);
+            } catch (MessagingException e) {
+                throw EmailException.createSendingEmailErrorException(e.getCause());
+            }
+        });
+        emailSenderThread.start();
     }
 }
