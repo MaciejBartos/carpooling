@@ -26,6 +26,13 @@ public class AccountHttpEndpoint {
         return accountService.getAccountById(id);
     }
 
+    @PostMapping(path = "/details", produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseStatus(value = HttpStatus.OK)
+    @RolesAllowed({"ROLE_ADMIN", "ROLE_USER"})
+    public AccountDetailsResponse getAccountDetailsByLogin(@Valid @RequestBody GetAccountDetailsByLoginRequest accountDetailsByLogin) {
+        return accountService.getAccountDetailsByLogin(accountDetailsByLogin.getLogin());
+    }
+
     @PutMapping(path = "/details", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(value = HttpStatus.OK)
     @RolesAllowed("ROLE_USER")

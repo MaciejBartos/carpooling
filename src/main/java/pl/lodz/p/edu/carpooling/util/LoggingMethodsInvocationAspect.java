@@ -14,58 +14,83 @@ import pl.lodz.p.edu.carpooling.exception.BaseAppException;
 @Slf4j
 public class LoggingMethodsInvocationAspect {
 
-    @Around("execution(* pl.lodz.p.edu.carpooling.module.service..*(..)) || " +
+    @Around("execution(* pl.lodz.p.edu.carpooling.module..*(..)) || " +
             "execution(* pl.lodz.p.edu.carpooling.persistence.dao..*(..)) || " +
             "execution(* pl.lodz.p.edu.carpooling.persistence.repository..*(..))")
-    public Object logMethod(ProceedingJoinPoint joinPoint) throws Throwable {
-        Object retVal;
+    public Object logMethodInvocation(ProceedingJoinPoint joinPoint) throws Throwable {
+        StopWatch stopWatch = new StopWatch();
+            
+        logMessage(createBeginningOfMethodMessage(joinPoint));
+
+        stopWatch.start();
+        Object methodReturnValue = handleMethodInvocation(joinPoint);
+        stopWatch.stop();
+
+        logMessage(createEndingOfMethodMessage(joinPoint, stopWatch.getTotalTimeMillis()));
+
+        return methodReturnValue;
+    }
+
+    private Object handleMethodInvocation(ProceedingJoinPoint joinPoint) throws Throwable {
+        Object methodReturnValue;
         try {
-            StringBuilder startMessage = new StringBuilder();
-            String pidNumber = "PID=[" + ProcessHandle.current().pid() + "] ";
-            StringBuilder endMessage = new StringBuilder();
-            StringBuilder arguments = new StringBuilder();
-
-            startMessage.append(pidNumber);
-            startMessage.append("Start method ");
-            startMessage.append(joinPoint.getSignature().getDeclaringTypeName());
-            startMessage.append(".");
-            startMessage.append(joinPoint.getSignature().getName());
-            startMessage.append("(");
-
-            Object[] args = joinPoint.getArgs();
-            for (Object arg : args) {
-                arguments.append(arg).append(",");
-            }
-            if (args.length > 0) {
-                arguments.deleteCharAt(arguments.length() - 1);
-            }
-
-            startMessage.append(arguments);
-            startMessage.append(")");
-
-            log.info(startMessage.toString());
-
-            StopWatch stopWatch = new StopWatch();
-            stopWatch.start();
-            retVal = joinPoint.proceed();
-
-            stopWatch.stop();
-
-            endMessage.append(pidNumber);
-            endMessage.append("Finish method ");
-            endMessage.append(joinPoint.getSignature().getDeclaringTypeName());
-            endMessage.append(".");
-            endMessage.append(joinPoint.getSignature().getName());
-            endMessage.append("(").append(arguments).append(")");
-            endMessage.append("; execution time: ");
-            endMessage.append(stopWatch.getTotalTimeMillis());
-            endMessage.append(" ms;");
-
-            log.info(endMessage.toString());
+            methodReturnValue = joinPoint.proceed();
         } catch (ObjectOptimisticLockingFailureException ex) {
             log.error("ObjectOptimisticLockingFailureException occurred for: " + ex.getPersistentClassName() + ", id=[" + ex.getIdentifier() + "]");
             throw BaseAppException.createOptimisticLockException();
+        } catch (Exception e) {
+            log.error("Unexpected exception occurred: " + e.getMessage());
+            throw BaseAppException.createUnexpectedException();
         }
-        return retVal;
+        return methodReturnValue;
+    }
+    
+    private void logMessage(String message) {
+        log.info(message);
+    }
+    
+    private String createBeginningOfMethodMessage(ProceedingJoinPoint joinPoint) {
+        return createPIDNumberMessage() +
+                "Start method " +
+                joinPoint.getSignature().getDeclaringTypeName() +
+                "." +
+                joinPoint.getSignature().getName() +
+                "(" +
+                createArgumentUsedInMethodMessage(joinPoint) +
+                ")";
+    }
+    
+    private String createEndingOfMethodMessage(ProceedingJoinPoint joinPoint, long invocationTimeInMillis) {
+        return createPIDNumberMessage() +
+                "Finish method " +
+                joinPoint.getSignature().getDeclaringTypeName() +
+                "." +
+                joinPoint.getSignature().getName() +
+                "(" + createArgumentUsedInMethodMessage(joinPoint) + ")" +
+                "; execution time: " +
+                invocationTimeInMillis +
+                " ms;";
+    }
+    
+    private String createPIDNumberMessage() {
+        return "PID=[" + getPIDNumber() + "] ";
+    }
+    
+    private long getPIDNumber() {
+        return ProcessHandle.current().pid();
+    }
+    
+    private String createArgumentUsedInMethodMessage(ProceedingJoinPoint joinPoint) {
+        StringBuilder arguments = new StringBuilder();
+
+        Object[] args = joinPoint.getArgs();
+        for (Object arg : args) {
+            arguments.append(arg).append(",");
+        }
+        if (args.length > 0) {
+            arguments.deleteCharAt(arguments.length() - 1);
+        }
+        
+        return arguments.toString();
     }
 }

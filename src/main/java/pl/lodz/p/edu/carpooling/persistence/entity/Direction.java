@@ -1,9 +1,6 @@
 package pl.lodz.p.edu.carpooling.persistence.entity;
 
-import com.vladmihalcea.hibernate.type.json.JsonStringType;
 import lombok.*;
-import org.hibernate.annotations.TypeDef;
-import org.hibernate.annotations.TypeDefs;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -15,9 +12,6 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@TypeDefs({
-        @TypeDef(name = "json", typeClass = JsonStringType.class),
-})
 @Builder
 public class Direction {
 

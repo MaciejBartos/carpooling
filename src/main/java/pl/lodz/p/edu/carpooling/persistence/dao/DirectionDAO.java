@@ -16,9 +16,9 @@ public interface DirectionDAO extends JpaRepository<Direction, Long> {
             "inner join coordinate c1 on d.origin_id = c1.id " +
             "inner join coordinate c2 on d.destination_id = c2.id " +
             "where (acos(sin(?1 * PI() / 180) * sin(c1.latitude * PI() / 180) + cos(?1 * PI() / 180) * cos(c1.latitude * PI() / 180) " +
-            "* cos(abs(?2 - c1.longitude) * PI() / 180)) * 6378) <= ?5 and " +
+            "* cos(abs(?2 - c1.longitude) * PI() / 180)) * 6371) <= ?5 and " +
             "(acos(sin(?3 * PI() / 180) * sin(c2.latitude * PI() / 180) + cos(?3 * PI() / 180) * cos(c2.latitude * PI() / 180) " +
-            "* cos(abs(?4 - c2.longitude) * PI() / 180)) * 6378) <= ?5 and d.travel_date > ?6 and d.travel_date <= ?7 and d.active = true " +
+            "* cos(abs(?4 - c2.longitude) * PI() / 180)) * 6371) <= ?5 and d.travel_date > ?6 and d.travel_date <= ?7 and d.active = true " +
             "order by d.travel_date"
             , nativeQuery = true)
     List<Direction> findDirectionsWhenInRadiusOfGivenCoordinate(double latitude1, double longitude1,
